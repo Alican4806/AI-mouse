@@ -24,7 +24,7 @@ class handDetector(): # We created the class to be functional
                                         self.detectionCon, self.trackCon) # we occur object from Hands function # we don't give any value of the Hands function because the false is given default
 
         self.mpDraw = mp.solutions.drawing_utils # the object is occured by drawing_utils module. # This object help us to draw points on the our hands.
-    
+        self.finger = [4,8,12,16,20]
             # Because of this module, we get rid of doing any mathematical operations.
 
     def findHands(self,img,draw=True): # We created new class to find hands.
@@ -45,7 +45,7 @@ class handDetector(): # We created the class to be functional
     
     
     def findPositon(self,img, handNo = 0, draw = True): # We created a new function that called findPositon to find where hands are
-        lmList = []
+        self.lmList = []
         if self.results.multi_hand_landmarks:
             myHand = self.results.multi_hand_landmarks[handNo] # We wrote down which hand was being talked about
             for id,lm in enumerate(myHand.landmark): # we used the enumarate function to order each point # For example WRIST = 0; like where does wrist locate in the screen?
@@ -56,14 +56,36 @@ class handDetector(): # We created the class to be functional
                                         # we try to get pixel value which located as x and y
                                         
                 # print(id,cx,cy) # we wrote values as pixel coordinates. Also we have written id values
-                lmList.append([id,cx,cy])# if id ==4:
+                self.lmList.append([id,cx,cy])# if id ==4:
                 
                 if draw:
                     cv.circle(img,(cx,cy),5,(0,255,0),cv.FILLED) # We adjust size of the circle the color.           
                                                                 
-        return lmList                                        
-                                       
-                            # # We tried to show fps
+        return self.lmList                                        
+     # The function which is needed Virtual painter, was added                                  
+    def fingersUp(self):
+        if len(self.lmList) != 0:
+            indexs = []
+            # For thumbs
+            if self.lmList[self.finger[0]][1]<self.lmList[self.finger[0]-1][1]: # The size mark is changed due to reverse the directions
+                indexs.append(1)
+                # print('index is open')
+            else:
+                indexs.append(0)
+                # print('index is close')
+                
+            # Another fingers
+            for id in range(1,5):
+                
+                if self.lmList[self.finger[id]][2]<self.lmList[self.finger[id]-2][2]:
+                    # print('index is open')
+                    indexs.append(1)
+                else:
+                    # print('index is close')
+                    indexs.append(0)
+            return indexs
+            
+            
     
   
 def main():
