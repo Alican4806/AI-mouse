@@ -46,6 +46,9 @@ class handDetector(): # We created the class to be functional
     
     def findPositon(self,img, handNo = 0, draw = True): # We created a new function that called findPositon to find where hands are
         self.lmList = []
+        xList = []
+        yList = []
+        bbox = []
         if self.results.multi_hand_landmarks:
             myHand = self.results.multi_hand_landmarks[handNo] # We wrote down which hand was being talked about
             for id,lm in enumerate(myHand.landmark): # we used the enumarate function to order each point # For example WRIST = 0; like where does wrist locate in the screen?
@@ -54,14 +57,22 @@ class handDetector(): # We created the class to be functional
                                             
                 cx,cy = int(lm.x*w),int(lm.y*h) # the decimal values convert to integer values
                                         # we try to get pixel value which located as x and y
-                                        
+                xList.append(cx)
+                yList.append(cy)                        
                 # print(id,cx,cy) # we wrote values as pixel coordinates. Also we have written id values
                 self.lmList.append([id,cx,cy])# if id ==4:
                 
                 if draw:
                     cv.circle(img,(cx,cy),5,(0,255,0),cv.FILLED) # We adjust size of the circle the color.           
-                                                                
-        return self.lmList                                        
+                
+            xMin , yMin = min(xList)  , min(yList) # These informations will be used for top part of the rectangle
+            xMax , yMax = max(xList)  , max(yList) # These informations will be used for bottom part of the rectangle  
+            bbox = xMin,yMin,xMax,yMax
+            if draw:
+                                                      
+                cv.rectangle(img,(xMin-25,yMin-25),(xMax+25,yMax+25),(0,255,0),2)
+        
+        return self.lmList                                    
      # The function which is needed Virtual painter, was added                                  
     def fingersUp(self):
         if len(self.lmList) != 0:
@@ -83,10 +94,11 @@ class handDetector(): # We created the class to be functional
                 else:
                     # print('index is close')
                     indexs.append(0)
+                 
             return indexs
             
             
-    
+        
   
 def main():
     pTime = 0 # It is previous time and it was 0 at started
@@ -100,7 +112,7 @@ def main():
         img =detector.findHands(img) # we didn't give another values because it is given by default
         lmList = detector.findPositon(img)
         if len(lmList)!= 0: # if this state is provided, it will print it
-            print(lmList[4]) # We is written fourth value of the list
+            print(lmList[4]) # Fourth value of the list is written  
 
       
         cTime = time.time() # we got current time as cTime
