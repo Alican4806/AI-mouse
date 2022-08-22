@@ -3,6 +3,8 @@ We will make module which called HandTrackingModule.py to able to use next proje
 
 '''
 
+import math
+from turtle import distance
 import cv2 as cv
 import mediapipe as mp
 import time
@@ -72,7 +74,23 @@ class handDetector(): # We created the class to be functional
                                                       
                 cv.rectangle(img,(xMin-25,yMin-25),(xMax+25,yMax+25),(0,255,0),2)
         
-        return self.lmList                                    
+        return self.lmList          
+    def fingerDistance(self,startPoint,endPoint,img,draw = True,radius = 10,thickness = 3,colorCircle = (100,250,100),colorLine = (0,255,0)):
+        self.startPoint = startPoint
+        self.endPoint = endPoint
+        self.img = img
+        
+        
+        
+        x1 , y1 = self.lmList[self.startPoint][1:]
+        x2 , y2 = self.lmList[self.endPoint][1:]
+        if draw:
+            cv.circle(self.img,(x1,y1),radius,colorCircle,cv.FILLED)   
+            cv.circle(self.img,(x2,y2),radius,colorCircle,cv.FILLED)  
+            cv.line(self.img,(x1,y1),(x2,y2),colorLine,thickness)
+          
+        distance = math.dist((x1,y1),(x2,y2))  
+        return  distance              
      # The function which is needed Virtual painter, was added                                  
     def fingersUp(self):
         if len(self.lmList) != 0:
@@ -113,8 +131,8 @@ def main():
         lmList = detector.findPositon(img)
         if len(lmList)!= 0: # if this state is provided, it will print it
             print(lmList[4]) # Fourth value of the list is written  
-
-      
+            
+            print(detector.fingerDistance(8,12,img))
         cTime = time.time() # we got current time as cTime
     
         fps = 1/ (cTime-pTime) # We found fps
