@@ -1,3 +1,4 @@
+from turtle import left
 import mediapipe as mp
 import time
 
@@ -6,16 +7,21 @@ import numpy as np
 import cv2 as cv
 import autopy
 import HandTrackingModule as htm
+#######################
 wCam , hCam = 640 , 480
 frame = 100
+#######################
 get = cv.VideoCapture(0)
 get.set(3,wCam)
 get.set(4,hCam)
 pTime = 0
 detector = htm.handDetector(maxHands=1)
-
+cLocX,cLocY = 0, 0 # Current locations
+pLocX , pLocY = 0, 0 # Previous locations
+smooth =5 # smoothing cofficient
 wScr,hScr = autopy.screen.size()
 print(wScr,hScr)
+
 while True:
     
     # 1 Find hand lanmarks
@@ -34,33 +40,49 @@ while True:
         xMiddle,yMiddle = landmark[12][1:]
         
         # The range of the screen and the frame are adjusted
-        xp =np.interp(x1,[frame,wCam-frame],[0,wScr])
+        xp =np.interp(x1,[frame,wCam-frame],[0,wScr]) # The ranges which are screen dimensions and frame dimensions, are equated each other.
         yp = np.interp(y1,[frame,hCam-2*frame],[0,hScr])
         
         cv.rectangle(img,((frame),(frame)),((wCam-frame),(hCam-2*frame)),(250,50,100),2) # The bounded of the mouse is defined by rectangle.
         if fingers[1]==True and fingers[2]==False and fingers[3]==False and fingers[4]==False and fingers[0]==False:# Only index finger is up
+            # It will be more smooth
+            cLocX = pLocX + (xp - pLocX)/ smooth
+            cLocY = pLocY + (yp - pLocY)/ smooth
+            pLocX = cLocX
+            pLocY = cLocY
             cv.circle(img,(x1,y1),10,(255,0,0),cv.FILLED)
-            autopy.mouse.move(xp,yp) # Working move mode
-            
+            autopy.mouse.move(cLocX,cLocY) # Working move mode
+            cv.putText(img,'Moving mode is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(2,255,255),2)
         # CLICK MODE (when Index and middle finger are up)
         
         elif fingers[1]==True and fingers[2]==True and fingers[3]==False and fingers[4]==False and fingers[0]==False:
-            Index = cv.circle(img,(x1,y1),10,(255,0,0),cv.FILLED)
-            Middle = cv.circle(img,(xMiddle,yMiddle),10,(255,0,0),cv.FILLED)
-            cv.line(img,(x1,y1),(xMiddle,yMiddle),(255,255,0),2)
-            print(np.disp(Index,Middle))
-            autopy.mouse.click()
-        # if fingers[] == True:
-        #     autopy.mouse.move(fingers[4][1],fingers[4][2])
-        # if detector.fingersUp[1] == True:
-        #     x1 , y1 = detector.fingersUp[1][1:]
-        #     autopy.mouse.move(x1,y1)
-    
-    # 2 Find index and middle  finger position
-    # 3 Index finger is up to move
-    # 4 Index finger and middle finger are up for click mode
-    # 5 
-        
+            
+            distance = detector.fingerDistance(8,12,img,True) # 8 and 12 are points which are on the hand
+            print(distance)
+            if distance <35: # If the distance is less than 35 pixel, it will be working click mode
+                cv.putText(img,'Clicking mode is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(255,255,255),2)
+                autopy.mouse.click()
+        elif fingers[1]==True and fingers[2]==True and fingers[3]==True and fingers[4]==False and fingers[0]==False:
+            
+            distance1 = detector.fingerDistance(8,12,img,True,5,2,(255,0,255),(0,0,255)) # 8 and 12 are points which are on the hand
+            print(f'this is {distance1}')
+            distance2 = detector.fingerDistance(12,16,img,True,5,2,(255,0,255),(0,0,255))
+            print(f'this is {distance2}')
+            if distance1 <30 and distance2 <30:
+                cv.putText(img,'Right clicking is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(255,0,255),2)
+                autopy.mouse.click(autopy.mouse.Button.RIGHT)
+        elif fingers[1]==True and fingers[2]==True and fingers[3]==True and fingers[4]==True and fingers[0]==False:
+            distance1 = detector.fingerDistance(8,12,img,True,5,2,(255,0,255),(0,0,255)) # 8 and 12 are points which are on the hand
+            print(f'this is {distance1}')
+            distance2 = detector.fingerDistance(12,16,img,True,5,2,(255,0,255),(0,0,255))
+            print(f'this is {distance2}')
+            distance3 = detector.fingerDistance(16,20,img,True,5,2,(255,0,255),(0,0,255))
+            print(f'this is {distance3}')
+            if distance1 <30 and distance2 <30 and distance3 < 43:
+                cv.putText(img,'Roll clicking is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(255,0,0),2)
+                autopy.mouse.click(autopy.mouse.Button.MIDDLE)
+        elif fingers[1]==False and fingers[2]==False and fingers[3]==False and fingers[4]==False and fingers[0]==True:
+                autopy.mouse.click(autopy.mouse.Button.BACK)
     
     # Fps
     cTime = time.time()
