@@ -82,12 +82,27 @@ while True:
                 cv.putText(img,'Roll clicking is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(255,0,0),2)
                 autopy.mouse.click(autopy.mouse.Button.MIDDLE)
         elif fingers[1]==False and fingers[2]==False and fingers[3]==False and fingers[4]==False and fingers[0]==True:
-                autopy.mouse.click(autopy.mouse.Button.BACK)
-    
+        #     finger = not fingers[1]
+            finger = True
+            cv.putText(img,'back button is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(120,1200,0),2)
+            autopy.key.toggle(autopy.key.Code.LEFT_ARROW,finger,[autopy.key.Modifier.ALT],1)
+            # finger = fingers[1]
+                # autopy.key.toggle(autopy.key.Code.LEFT,)
+                # cv.circle(img,)
+            # autopy.key.toggle(autopy.key.Code.UP_ARROW, False, [autopy.key.Modifier.CONTROL], 0)
+            
+            
+        elif fingers[1]==False and fingers[2]==False and fingers[3]==False and fingers[4]==True and fingers[0]==False:
+            finger = True
+            cv.putText(img,'forward button is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(120,1200,0),2)
+            autopy.key.toggle(autopy.key.Code.RIGHT_ARROW,finger,[autopy.key.Modifier.ALT],1)
+            
+        autopy.key.toggle(autopy.key.Code.LEFT_ARROW,False,[autopy.key.Modifier.ALT],0)
+        autopy.key.toggle(autopy.key.Code.RIGHT_ARROW,False,[autopy.key.Modifier.ALT],0)
     # Fps
     cTime = time.time()
     fps = 1/(cTime-pTime)
-    
+     
     pTime = cTime
     cv.putText(cap,f'FPS:{(int(fps))}',(60,60),cv.FONT_HERSHEY_COMPLEX,1,(255,0,255),2)
     
