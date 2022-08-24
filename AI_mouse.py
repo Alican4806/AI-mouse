@@ -1,4 +1,3 @@
-from turtle import left
 import mediapipe as mp
 import time
 
@@ -19,7 +18,7 @@ detector = htm.handDetector(maxHands=1)
 cLocX,cLocY = 0, 0 # Current locations
 pLocX , pLocY = 0, 0 # Previous locations
 smooth =5 # smoothing cofficient
-wScr,hScr = autopy.screen.size()
+wScr,hScr = autopy.screen.size() # The dimension of the screen is learned
 print(wScr,hScr)
 
 while True:
@@ -27,13 +26,13 @@ while True:
     # 1 Find hand lanmarks
     success, cap = get.read()
     cap = cv.flip(cap,1) # The camera is reversed.
-    img = detector.findHands(cap)
-    landmark = detector.findPositon(img)
+    img = detector.findHands(cap) # We found where hands are
+    landmark = detector.findPositon(img) # The location information of the hand is shown.
     
     
     if len(landmark) != 0:
         # print(detector.fingersUp)
-        fingers = detector.fingersUp()
+        fingers = detector.fingersUp() # It is controlled whether the fingers are up.
         
         # MOVING MODE 
         x1,y1 = landmark[8][1],landmark[8][2] # Information is received about the location of the index finger.
@@ -62,6 +61,7 @@ while True:
             if distance <35: # If the distance is less than 35 pixel, it will be working click mode
                 cv.putText(img,'Clicking mode is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(255,255,255),2)
                 autopy.mouse.click()
+        # CLICK MODE ( RIGHT CLICK)
         elif fingers[1]==True and fingers[2]==True and fingers[3]==True and fingers[4]==False and fingers[0]==False:
             
             distance1 = detector.fingerDistance(8,12,img,True,5,2,(255,0,255),(0,0,255)) # 8 and 12 are points which are on the hand
@@ -71,6 +71,7 @@ while True:
             if distance1 <30 and distance2 <30:
                 cv.putText(img,'Right clicking is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(255,0,255),2)
                 autopy.mouse.click(autopy.mouse.Button.RIGHT)
+        # ROLL BUTTON 
         elif fingers[1]==True and fingers[2]==True and fingers[3]==True and fingers[4]==True and fingers[0]==False:
             distance1 = detector.fingerDistance(8,12,img,True,5,2,(255,0,255),(0,0,255)) # 8 and 12 are points which are on the hand
             print(f'this is {distance1}')
@@ -81,24 +82,25 @@ while True:
             if distance1 <30 and distance2 <30 and distance3 < 43:
                 cv.putText(img,'Roll clicking is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(255,0,0),2)
                 autopy.mouse.click(autopy.mouse.Button.MIDDLE)
+        # BACK BUTTON
         elif fingers[1]==False and fingers[2]==False and fingers[3]==False and fingers[4]==False and fingers[0]==True:
         #     finger = not fingers[1]
             finger = True
             cv.putText(img,'back button is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(120,1200,0),2)
-            autopy.key.toggle(autopy.key.Code.LEFT_ARROW,finger,[autopy.key.Modifier.ALT],1)
-            # finger = fingers[1]
-                # autopy.key.toggle(autopy.key.Code.LEFT,)
-                # cv.circle(img,)
-            # autopy.key.toggle(autopy.key.Code.UP_ARROW, False, [autopy.key.Modifier.CONTROL], 0)
+            autopy.key.toggle(autopy.key.Code.LEFT_ARROW,finger,[autopy.key.Modifier.ALT],1) # The ALT + LEFT ARROW buttons combination was activated.
+            autopy.key.toggle(autopy.key.Code.LEFT_ARROW,False,[autopy.key.Modifier.ALT],0) # The ALT + LEFT ARROW buttons combination was released.
             
-            
+        # FORWARD BUTTON
         elif fingers[1]==False and fingers[2]==False and fingers[3]==False and fingers[4]==True and fingers[0]==False:
             finger = True
             cv.putText(img,'forward button is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(120,1200,0),2)
-            autopy.key.toggle(autopy.key.Code.RIGHT_ARROW,finger,[autopy.key.Modifier.ALT],1)
+            autopy.key.toggle(autopy.key.Code.RIGHT_ARROW,finger,[autopy.key.Modifier.ALT],1) # The ALT + RIGHT ARROW buttons combination was activated.
+            autopy.key.toggle(autopy.key.Code.RIGHT_ARROW,False,[autopy.key.Modifier.ALT],0) # The ALT + RIGHT ARROW buttons combination was released.
             
-        autopy.key.toggle(autopy.key.Code.LEFT_ARROW,False,[autopy.key.Modifier.ALT],0)
-        autopy.key.toggle(autopy.key.Code.RIGHT_ARROW,False,[autopy.key.Modifier.ALT],0)
+        ## These rows were removed because the roll button was blocked from working.  ##
+            # The ALT button is released.
+        # autopy.key.toggle(autopy.key.Code.LEFT_ARROW,False,[autopy.key.Modifier.ALT],0)
+        # autopy.key.toggle(autopy.key.Code.RIGHT_ARROW,False,[autopy.key.Modifier.ALT],0)
     # Fps
     cTime = time.time()
     fps = 1/(cTime-pTime)
