@@ -1,7 +1,5 @@
 import mediapipe as mp
 import time
-
-
 import numpy as np
 import cv2 as cv
 import autopy
@@ -10,6 +8,7 @@ import HandTrackingModule as htm
 wCam , hCam = 640 , 480
 frame = 100
 #######################
+
 get = cv.VideoCapture(0)
 get.set(3,wCam)
 get.set(4,hCam)
@@ -61,7 +60,9 @@ while True:
             if distance <35: # If the distance is less than 35 pixel, it will be working click mode
                 cv.putText(img,'Clicking mode is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(255,255,255),2)
                 autopy.mouse.click()
-        # CLICK MODE ( RIGHT CLICK)
+                
+                
+        # CLICK MODE (RIGHT CLICK)
         elif fingers[1]==True and fingers[2]==True and fingers[3]==True and fingers[4]==False and fingers[0]==False:
             
             distance1 = detector.fingerDistance(8,12,img,True,5,2,(255,0,255),(0,0,255)) # 8 and 12 are points which are on the hand
@@ -71,6 +72,8 @@ while True:
             if distance1 <30 and distance2 <30:
                 cv.putText(img,'Right clicking is active',(int(wCam/3),hCam-30),cv.FONT_HERSHEY_PLAIN,1.6,(255,0,255),2)
                 autopy.mouse.click(autopy.mouse.Button.RIGHT)
+                
+                
         # ROLL BUTTON 
         elif fingers[1]==True and fingers[2]==True and fingers[3]==True and fingers[4]==True and fingers[0]==False:
             distance1 = detector.fingerDistance(8,12,img,True,5,2,(255,0,255),(0,0,255)) # 8 and 12 are points which are on the hand
@@ -101,7 +104,7 @@ while True:
             # The ALT button is released.
         # autopy.key.toggle(autopy.key.Code.LEFT_ARROW,False,[autopy.key.Modifier.ALT],0)
         # autopy.key.toggle(autopy.key.Code.RIGHT_ARROW,False,[autopy.key.Modifier.ALT],0)
-    # Fps
+    # To find fps
     cTime = time.time()
     fps = 1/(cTime-pTime)
      
